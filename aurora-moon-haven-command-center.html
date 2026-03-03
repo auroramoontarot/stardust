@@ -1,9 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Aurora Moon Haven Command Center</title>
-
 <style>
 body {
     margin: 0;
@@ -42,59 +36,55 @@ body {
     to { transform: translateX(15%) rotate(8deg); }
 }
 
-/* Main Box */
+/* Main Box — Smaller Footprint */
 #weather-box {
     position: relative;
-    padding: 35px 45px;
-    border-radius: 35px;
-    backdrop-filter: blur(22px);
+    padding: 22px 28px; /* smaller padding */
+    border-radius: 30px;
+    backdrop-filter: blur(20px);
     background: rgba(15, 10, 65, 0.65);
     box-shadow:
-        0 0 60px #7F87FF,
-        0 0 120px #00A9BA,
-        inset 0 0 35px rgba(198,199,248,0.6);
-    width: 520px;
+        0 0 50px #7F87FF,
+        0 0 100px #00A9BA,
+        inset 0 0 30px rgba(198,199,248,0.6);
+    width: 460px; /* smaller overall width */
 }
 
-/* Title */
+/* Title — One Line Clean */
 .title {
-    font-size: 26px;
+    font-size: 22px; /* slightly larger but tighter */
     text-align: center;
-    margin-bottom: 18px;
-    letter-spacing: 3px;
+    margin-bottom: 12px;
+    letter-spacing: 1.5px; /* reduced spacing */
     text-shadow: 0 0 15px #7F87FF, 0 0 25px #00A9BA;
+    white-space: nowrap; /* force single line */
 }
 
+/* Main Weather Data — Larger */
 .section {
-    margin-top: 10px;
-    font-size: 17px;
-    line-height: 1.6;
+    margin-top: 6px;
+    font-size: 19px; /* increased */
+    line-height: 1.5;
 }
 
+/* Spoon Panel — Larger but tighter */
 .spoon-panel {
-    margin-top: 15px;
-    padding-top: 10px;
+    margin-top: 10px;
+    padding-top: 8px;
     border-top: 1px solid rgba(198,199,248,0.3);
-    font-size: 16px;
-}
-
-.soft-alert {
-    color: #C6C7F8;
-}
-
-.warning {
-    color: #00A9BA;
-}
-
-.high-risk {
-    color: #7F87FF;
-    text-shadow: 0 0 10px #7F87FF;
+    font-size: 17px; /* increased */
+    line-height: 1.5;
 }
 
 .poetic {
     font-style: italic;
     opacity: 0.85;
-    margin-top: 4px;
+    margin-top: 3px;
+}
+
+.high-risk {
+    color: #7F87FF;
+    text-shadow: 0 0 10px #7F87FF;
 }
 
 .moon {
@@ -103,112 +93,6 @@ body {
 
 @keyframes breathe {
     0%,100% { transform: scale(1); }
-    50% { transform: scale(1.15); }
+    50% { transform: scale(1.12); }
 }
-
 </style>
-</head>
-<body>
-
-<div id="nebula"></div>
-<div id="aurora"></div>
-
-<div id="weather-box">
-    <div class="title">🌙 Aurora Moon Haven Command Center 🌙</div>
-    <div id="weather-data" class="section">Consulting skies...</div>
-    <div id="spoon-panel" class="spoon-panel"></div>
-</div>
-
-<script>
-
-let lastPressure = null;
-let lastTemp = null;
-
-function getMoonPhase() {
-    const now = new Date();
-    const lp = 2551443;
-    const new_moon = new Date(1970,0,7,20,35,0);
-    const phase = ((now - new_moon) / 1000) % lp;
-    const index = Math.floor((phase / lp) * 8);
-    const phases = ["🌑","🌒","🌓","🌔","🌕","🌖","🌗","🌘"];
-    return phases[index];
-}
-
-async function fetchWeather() {
-    try {
-        const response = await fetch("https://api.weather.com/v2/pws/observations/current?stationId=KMNSTLOU35&format=json&units=e&apiKey=bf4fed63fdcb4ff28fed63fdcbcff272");
-        const data = await response.json();
-        const obs = data.observations[0];
-
-        const temp = obs.imperial.temp;
-        const wind = obs.imperial.windSpeed;
-        const humidity = obs.humidity;
-        const pressure = obs.imperial.pressure;
-        const condition = obs.wxPhrase;
-
-        document.getElementById("weather-data").innerHTML = `
-            🌡 ${temp}°F | 💨 ${wind} mph | 💧 ${humidity}%<br>
-            🌤 ${condition} | 📉 ${pressure} inHg<br>
-            <span class="moon">${getMoonPhase()}</span>
-        `;
-
-        // Spoon Logic
-        let flareScore = 0;
-        let messages = [];
-
-        if (humidity > 70) {
-            flareScore += 2;
-            messages.push("💧 Humidity High — inflammation risk rising.");
-        }
-
-        if (lastPressure !== null && pressure < lastPressure - 0.05) {
-            flareScore += 3;
-            messages.push("📉 Pressure Dropping — body may feel this.");
-        }
-
-        if (lastTemp !== null && Math.abs(temp - lastTemp) >= 5) {
-            flareScore += 2;
-            messages.push("🌬 Temperature Shift — cold front sensitivity likely.");
-        }
-
-        if (wind > 10) {
-            flareScore += 1;
-            messages.push("🌿 Wind Elevated — allergy watch.");
-        }
-
-        let spoonStatus = "Stable Energy";
-        let poeticLine = "The atmosphere rests gently.";
-
-        if (flareScore >= 5) {
-            spoonStatus = "High Flare Risk";
-            poeticLine = "The veil thins. Move softly, Moonbeam.";
-        } else if (flareScore >= 3) {
-            spoonStatus = "Flare Watch";
-            poeticLine = "The air carries weight today.";
-        } else if (flareScore >= 1) {
-            spoonStatus = "Low Reserve";
-            poeticLine = "Conserve your light wisely.";
-        } else {
-            poeticLine = "The skies cradle you kindly.";
-        }
-
-        document.getElementById("spoon-panel").innerHTML = `
-            🥄 Spoon Forecast: <span class="high-risk">${spoonStatus}</span><br>
-            ${messages.join("<br>")}
-            <div class="poetic">${poeticLine}</div>
-        `;
-
-        lastPressure = pressure;
-        lastTemp = temp;
-
-    } catch (e) {
-        document.getElementById("weather-data").innerHTML = "Cosmic interference detected...";
-    }
-}
-
-fetchWeather();
-setInterval(fetchWeather, 60000);
-
-</script>
-</body>
-</html>
