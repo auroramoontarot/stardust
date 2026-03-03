@@ -61,7 +61,6 @@ body {
 
 <div class="spoonie" id="spoonie"></div>
 </div>
-
 <script>
 async function getWeather() {
 
@@ -73,12 +72,19 @@ const data = await response.json();
 
 const obs = data.STATION[0].OBSERVATIONS;
 
-let temp = obs.air_temp_value_1.value;
-let humidity = obs.relative_humidity_value_1.value;
-let wind = obs.wind_speed_value_1.value;
-let windDir = obs.wind_direction_value_1.value;
-let pressure = obs.sea_level_pressure_value_1.value;
-let rain = obs.precip_accum_value_1.value;
+// Synoptic returns arrays — we grab index [0]
+let temp = obs.air_temp_value_1?.value ?? obs.air_temp_value_1?.[0];
+let humidity = obs.relative_humidity_value_1?.value ?? obs.relative_humidity_value_1?.[0];
+let wind = obs.wind_speed_value_1?.value ?? obs.wind_speed_value_1?.[0];
+let pressure = obs.sea_level_pressure_value_1?.value ?? obs.sea_level_pressure_value_1?.[0];
+let rain = obs.precip_accum_value_1?.value ?? obs.precip_accum_value_1?.[0];
+
+// Round values safely
+temp = temp ? temp.toFixed(1) : "--";
+humidity = humidity ? Math.round(humidity) : "--";
+wind = wind ? wind.toFixed(1) : "--";
+pressure = pressure ? pressure.toFixed(2) : "--";
+rain = rain ? rain.toFixed(2) : "0.00";
 
 document.getElementById("temp").innerHTML = temp + "°F";
 document.getElementById("humidity").innerHTML = "Humidity: " + humidity + "%";
@@ -103,6 +109,8 @@ document.getElementById("temp").innerHTML = "Atmospheric signal temporarily disr
 }
 
 getWeather();
+setInterval(getWeather, 300000);
+</script>
 setInterval(getWeather, 300000);
 </script>
 
