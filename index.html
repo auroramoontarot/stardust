@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Aurora Moon Haven</title>
+
+<style>
+body {
+    margin: 0;
+    background: transparent;
+    font-family: 'Trebuchet MS', sans-serif;
+    color: #CBECF5;
+    overflow: hidden;
+}
+
+/* Nebula + Aurora Background */
+#nebula, #aurora {
+    position: absolute;
+    width: 250%;
+    height: 250%;
+    z-index: -3;
+}
+
+#nebula {
+    background: radial-gradient(circle at 30% 30%, rgba(127,135,255,0.25), transparent 40%),
+                radial-gradient(circle at 70% 60%, rgba(0,169,186,0.25), transparent 40%);
+    animation: drift 35s linear infinite;
+}
+
+#aurora {
+    background: linear-gradient(120deg, rgba(127,135,255,0.25), rgba(0,169,186,0.25), rgba(198,199,248,0.2));
+    animation: auroraMove 25s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+    from { transform: translate(0,0); }
+    to { transform: translate(-20%, -20%); }
+}
+
+@keyframes auroraMove {
+    from { transform: translateX(-15%) rotate(0deg); }
+    to { transform: translateX(15%) rotate(8deg); }
+}
+
+/* Main Weather Box */
+#weather-box {
+    position: relative;
+    padding: 20px 24px;
+    border-radius: 28px;
+    backdrop-filter: blur(20px);
+    background: rgba(15, 10, 65, 0.65);
+    box-shadow:
+        0 0 40px #7F87FF,
+        0 0 80px #00A9BA,
+        inset 0 0 25px rgba(198,199,248,0.6);
+    width: 390px;
+}
+
+/* Title */
+.title {
+    font-size: 22px;
+    text-align: center;
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px #7F87FF, 0 0 18px #00A9BA;
+    white-space: nowrap;
+}
+
+/* Current Conditions — Larger */
+.section {
+    margin-top: 2px;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+/* Spoon Panel */
+.spoon-panel {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(198,199,248,0.3);
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+.poetic {
+    font-style: italic;
+    opacity: 0.85;
+    margin-top: 3px;
+}
+
+.high-risk {
+    color: #7F87FF;
+    text-shadow: 0 0 8px #7F87FF;
+}
+
+.moon {
+    animation: breathe 6s ease-in-out infinite;
+}
+
+@keyframes breathe {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+}
+</style>
+</head>
+<body>
+
+<div id="nebula"></div>
+<div id="aurora"></div>
+
+<div id="weather-box">
+    <div class="title">Aurora Moon Haven</div>
+    <div id="weather-data" class="section">Consulting skies...</div>
+    <div id="spoon-panel" class="spoon-panel"></div>
+</div>
+
+<script>
+async function getWeather() {
+    try {
+        const response = await fetch("https://api.synopticdata.com/v2/stations/latest?stid=GW6813&units=english&output=json&token=4443001629c7472f8bf9ea4312309c53");
+
+        const data = await response.json();
+
+        const obs = data.STATION[0].OBSERVATIONS;
+
+        let temp = obs.air_temp_value_1?.value;
+        let humidity = obs.relative_humidity_value_1?.value;
+        let windKnots = obs.wind_speed_value_1?.value;
+        let pressureMB = obs.sea_level_pressure_value_1d?.value;
+        let rain = obs.precip_accum_since_local_midnight_value_1?.value;
+
+        // Convert units
+        let windMPH = windKnots ? (windKnots * 1.15078).toFixed(1) : "--";
+        let pressureIN = pressureMB ? (pressureMB * 0.02953).toFixed(2) : "--";
+
+        temp = temp !== undefined ? temp.toFixed(1) : "--";
+        humidity = humidity !== undefined ? Math.round(humidity) : "--";
+        rain = rain !== undefined ? rain.toFixed(2) : "0.00";
+
+        document.getElementById("temp").innerHTML = temp + "°F";
+        document.getElementById("humidity").innerHTML = "Humidity: " + humidity + "%";
+        document.getElementById("pressure").innerHTML = "Pressure: " + pressureIN + " inHg";
+        document.getElementById("wind").innerHTML = "Wind: " + windMPH + " mph";
+        document.getElementById("rain").innerHTML = "Rain Today: " + rain + " in";
+
+        let spoonieAlert = "";
+
+        if (humidity > 70) spoonieAlert += "⚠️ High humidity may increase pain levels. ";
+        if (pressureIN < 29.80) spoonieAlert += "⚠️ Low pressure system detected. ";
+        if (temp < 40) spoonieAlert += "⚠️ Cold sensitivity alert. ";
+
+        document.getElementById("spoonie").innerHTML = spoonieAlert;
+
+    } catch (error) {
+        document.getElementById("temp").innerHTML = "Atmospheric signal temporarily disrupted";
+        document.getElementById("humidity").innerHTML = "";
+        document.getElementById("pressure").innerHTML = "";
+        document.getElementById("wind").innerHTML = "";
+        document.getElementById("rain").innerHTML = "";
+        document.getElementById("spoonie").innerHTML = "";
+    }
+}
+
+getWeather();
+setInterval(getWeather, 300000);
+</script>
+
+</body>
+</html>
