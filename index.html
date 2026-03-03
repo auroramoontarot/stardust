@@ -58,7 +58,7 @@ body {
 
 /* Title */
 .title {
-    font-size: 18px;
+    font-size: 22px;
     text-align: center;
     margin-bottom: 4px;
     letter-spacing: 1px;
@@ -110,7 +110,7 @@ body {
 <div id="aurora"></div>
 
 <div id="weather-box">
-    <div class="title">🌙Aurora Moon Haven🌙</div>
+    <div class="title">Aurora Moon Haven</div>
     <div id="weather-data" class="section">Consulting skies...</div>
     <div id="spoon-panel" class="spoon-panel"></div>
 </div>
@@ -148,7 +148,6 @@ async function fetchWeather() {
             <span class="moon">${getMoonPhase()}</span>
         `;
 
-        /* Spoon Logic */
         let flareScore = 0;
         let messages = [];
 
