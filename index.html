@@ -118,10 +118,9 @@ body {
 <script>
 async function getWeather() {
     try {
-       const response = await fetch("https://api.synopticdata.com/v2/stations/latest?stid=GW6813&units=english&vars=air_temp,relative_humidity,wind_speed,sea_level_pressure,precip_accum_since_local_midnight&output=json&token=4443001629c7472f8bf9ea4312309c53");
+        const response = await fetch("https://api.synopticdata.com/v2/stations/latest?stid=GW6813&units=english&vars=air_temp,relative_humidity,wind_speed,sea_level_pressure,precip_accum_since_local_midnight&output=json&token=4443001629c7472f8bf9ea4312309c53");
 
         const data = await response.json();
-
         const obs = data.STATION[0].OBSERVATIONS;
 
         let temp = obs.air_temp_value_1?.value;
@@ -130,7 +129,6 @@ async function getWeather() {
         let pressureMB = obs.sea_level_pressure_value_1d?.value;
         let rain = obs.precip_accum_since_local_midnight_value_1?.value;
 
-        // Convert units
         let windMPH = windKnots ? (windKnots * 1.15078).toFixed(1) : "--";
         let pressureIN = pressureMB ? (pressureMB * 0.02953).toFixed(2) : "--";
 
@@ -138,11 +136,13 @@ async function getWeather() {
         humidity = humidity !== undefined ? Math.round(humidity) : "--";
         rain = rain !== undefined ? rain.toFixed(2) : "0.00";
 
-        document.getElementById("temp").innerHTML = temp + "°F";
-        document.getElementById("humidity").innerHTML = "Humidity: " + humidity + "%";
-        document.getElementById("pressure").innerHTML = "Pressure: " + pressureIN + " inHg";
-        document.getElementById("wind").innerHTML = "Wind: " + windMPH + " mph";
-        document.getElementById("rain").innerHTML = "Rain Today: " + rain + " in";
+        // Update your single weather-data div
+        document.getElementById("weather-data").innerHTML =
+            temp + "°F • " +
+            humidity + "% humidity • " +
+            windMPH + " mph wind • " +
+            pressureIN + " inHg • " +
+            rain + " in rain";
 
         let spoonieAlert = "";
 
@@ -150,21 +150,17 @@ async function getWeather() {
         if (pressureIN < 29.80) spoonieAlert += "⚠️ Low pressure system detected. ";
         if (temp < 40) spoonieAlert += "⚠️ Cold sensitivity alert. ";
 
-        document.getElementById("spoonie").innerHTML = spoonieAlert;
+        document.getElementById("spoon-panel").innerHTML = spoonieAlert;
 
     } catch (error) {
-        document.getElementById("temp").innerHTML = "Atmospheric signal temporarily disrupted";
-        document.getElementById("humidity").innerHTML = "";
-        document.getElementById("pressure").innerHTML = "";
-        document.getElementById("wind").innerHTML = "";
-        document.getElementById("rain").innerHTML = "";
-        document.getElementById("spoonie").innerHTML = "";
+        document.getElementById("weather-data").innerHTML =
+            "Atmospheric signal temporarily disrupted";
+        document.getElementById("spoon-panel").innerHTML = "";
     }
 }
 
 getWeather();
 setInterval(getWeather, 300000);
 </script>
-
 </body>
 </html>
