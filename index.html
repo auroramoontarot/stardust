@@ -118,7 +118,7 @@ body {
 <script>
 async function getWeather() {
     try {
-        const response = await fetch("https://api.synopticdata.com/v2/stations/latest?stid=GW6813&units=english&output=json&token=4443001629c7472f8bf9ea4312309c53");
+       const response = await fetch("https://api.synopticdata.com/v2/stations/latest?stid=GW6813&units=english&vars=air_temp,relative_humidity,wind_speed,sea_level_pressure,precip_accum_since_local_midnight&output=json&token=4443001629c7472f8bf9ea4312309c53");
 
         const data = await response.json();
 
