@@ -42,7 +42,7 @@ body {
     to { transform: translateX(15%) rotate(8deg); }
 }
 
-/* Main Weather Box */
+/* Weather Box */
 #weather-box {
     position: relative;
     padding: 20px 24px;
@@ -56,25 +56,20 @@ body {
     width: 390px;
 }
 
-/* Title */
 .title {
     font-size: 22px;
     text-align: center;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     letter-spacing: 1px;
     text-shadow: 0 0 10px #7F87FF, 0 0 18px #00A9BA;
-    white-space: nowrap;
 }
 
-/* Current Conditions — Larger */
 .section {
-    margin-top: 2px;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
-    line-height: 1.3;
+    line-height: 1.4;
 }
 
-/* Spoon Panel */
 .spoon-panel {
     margin-top: 8px;
     padding-top: 6px;
@@ -82,35 +77,16 @@ body {
     font-size: 15px;
     line-height: 1.4;
 }
-
-.poetic {
-    font-style: italic;
-    opacity: 0.85;
-    margin-top: 3px;
-}
-
-.high-risk {
-    color: #7F87FF;
-    text-shadow: 0 0 8px #7F87FF;
-}
-
-.moon {
-    animation: breathe 6s ease-in-out infinite;
-}
-
-@keyframes breathe {
-    0%,100% { transform: scale(1); }
-    50% { transform: scale(1.12); }
-}
 </style>
 </head>
+
 <body>
 
 <div id="nebula"></div>
 <div id="aurora"></div>
 
 <div id="weather-box">
-    <div class="title">Aurora Moon Haven</div>
+    <div class="title">🌙 Aurora Moon Haven 🌙</div>
     <div id="weather-data" class="section">Consulting skies...</div>
     <div id="spoon-panel" class="spoon-panel"></div>
 </div>
@@ -118,9 +94,20 @@ body {
 <script>
 async function getWeather() {
     try {
-       const response = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent("https://api.synopticdata.com/v2/stations/latest?stid=GW6813&units=english&vars=air_temp,relative_humidity,wind_speed,sea_level_pressure,precip_accum_since_local_midnight&output=json&token=4443001629c7472f8bf9ea4312309c53"));
+
+        const url = "https://api.synopticdata.com/v2/stations/latest?stid=GW6813&units=english&vars=air_temp,relative_humidity,wind_speed,sea_level_pressure,precip_accum_since_local_midnight&output=json&token=4443001629c7472f8bf9ea4312309c53";
+
+        const response = await fetch(url, {
+            method: "GET",
+            headers: { "Accept": "application/json" }
+        });
 
         const data = await response.json();
+
+        if (!data.STATION || data.STATION.length === 0) {
+            throw new Error("No station data returned");
+        }
+
         const obs = data.STATION[0].OBSERVATIONS;
 
         let temp = obs.air_temp_value_1?.value;
@@ -129,6 +116,7 @@ async function getWeather() {
         let pressureMB = obs.sea_level_pressure_value_1d?.value;
         let rain = obs.precip_accum_since_local_midnight_value_1?.value;
 
+        // Convert units safely
         let windMPH = windKnots ? (windKnots * 1.15078).toFixed(1) : "--";
         let pressureIN = pressureMB ? (pressureMB * 0.02953).toFixed(2) : "--";
 
@@ -136,7 +124,6 @@ async function getWeather() {
         humidity = humidity !== undefined ? Math.round(humidity) : "--";
         rain = rain !== undefined ? rain.toFixed(2) : "0.00";
 
-        // Update your single weather-data div
         document.getElementById("weather-data").innerHTML =
             temp + "°F • " +
             humidity + "% humidity • " +
@@ -147,8 +134,8 @@ async function getWeather() {
         let spoonieAlert = "";
 
         if (humidity > 70) spoonieAlert += "⚠️ High humidity may increase pain levels. ";
-        if (pressureIN < 29.80) spoonieAlert += "⚠️ Low pressure system detected. ";
-        if (temp < 40) spoonieAlert += "⚠️ Cold sensitivity alert. ";
+        if (pressureIN !== "--" && pressureIN < 29.80) spoonieAlert += "⚠️ Low pressure system detected. ";
+        if (temp !== "--" && temp < 40) spoonieAlert += "⚠️ Cold sensitivity alert. ";
 
         document.getElementById("spoon-panel").innerHTML = spoonieAlert;
 
@@ -162,5 +149,6 @@ async function getWeather() {
 getWeather();
 setInterval(getWeather, 300000);
 </script>
+
 </body>
 </html>
